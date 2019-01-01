@@ -48,4 +48,4 @@ class IndexHeap:
 </pre>
 
 ## Installation
-pip install libheap, support python3
+pip install libheap, only support python3
