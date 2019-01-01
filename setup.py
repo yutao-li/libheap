@@ -6,6 +6,4 @@ setup(name='libheap',
       download_url='https://github.com/yutao-li/libheap/archive/0.1.tar.gz',
       author='masterlee',
       author_email='',
-      license='MIT',
-      packages=['libheap'],
-      install_requires=[])
+      license='MIT')
