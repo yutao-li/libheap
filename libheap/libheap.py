@@ -46,7 +46,7 @@ class Heap:
         if i == self.size():
             self.pq.pop()
             del self.qp[key]
-	    return
+            return
         self.__exch(i, self.size())
         self.pq.pop()
         self.__swim(i)
