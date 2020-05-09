@@ -1,59 +1,56 @@
 class Heap:
-    def __init__(self, keys: list = None, min=True, compare=None):
-        self.compare = compare
+    def __init__(self, min=True, comparator=None):
+        self.comparator = comparator
         # denote whether it's a min heap
         self.min = min
-        if keys:
-            self.pq = [0] + keys
-            self.qp = dict(zip(keys, range(1, len(self.pq))))
-            k = len(keys) // 2
-            while k >= 1:
-                self.__sink(k)
-                k -= 1
-        else:
-            self.pq = [0]
-            self.qp = {}
+        self.pq = [0]
+        self.qp = {}
 
-    def insert(self, key):
+    def heapify(self, keys):
+        self.pq = [0] + keys
+        self.qp = dict(zip(keys, range(1, len(self.pq))))
+        k = (len(self.pq) - 1) // 2
+        while k >= 1:
+            self._sink(k)
+            k -= 1
+
+    def push(self, key):
         self.pq.append(key)
-        self.qp[key] = self.size()
-        self.__swim(self.size())
+        self.qp[key] = len(self)
+        self._swim(len(self))
 
     def pop(self):
-        if self.empty():
+        if len(self) == 0:
             raise Exception('Priority queue underflow')
         m = self.pq[1]
-        self.__exch(1, self.size())
+        self._exch(1, len(self))
         self.pq.pop()
-        self.__sink(1)
+        self._sink(1)
         del self.qp[m]
         return m
 
-    def top(self):
-        if self.empty():
+    def peek(self):
+        if len(self) == 0:
             raise Exception('Priority queue underflow')
         return self.pq[1]
 
-    def empty(self):
-        return self.size() == 0
-
-    def size(self):
+    def __len__(self):
         return len(self.pq) - 1
 
-    def delete(self, key):
-        self.validate(key)
+    def __delitem__(self, key):
+        self._validate(key)
         i = self.qp[key]
-        if i == self.size():
+        if i == len(self):
             self.pq.pop()
             del self.qp[key]
             return
-        self.__exch(i, self.size())
+        self._exch(i, len(self))
         self.pq.pop()
-        self.__swim(i)
-        self.__sink(i)
+        self._swim(i)
+        self._sink(i)
         del self.qp[key]
 
-    def validate(self, key):
+    def _validate(self, key):
         if key not in self:
             raise ValueError("index is not in the priority queue")
 
@@ -61,79 +58,108 @@ class Heap:
         return item in self.qp
 
     def __compare(self, i, j):
-        if self.compare:
-            comp = self.compare(self.pq[i], self.pq[j]) > 0
+        if self.comparator:
+            comp = self.comparator(self.pq[i], self.pq[j]) > 0
         else:
             comp = self.pq[i] > self.pq[j]
         return comp if self.min else not comp
 
-    def __exch(self, i, j):
+    def _exch(self, i, j):
         swap = self.pq[i]
         self.pq[i] = self.pq[j]
         self.pq[j] = swap
         self.qp[self.pq[i]] = i
         self.qp[self.pq[j]] = j
 
-    def __swim(self, k):
+    def _swim(self, k):
         while k > 1 and self.__compare(k // 2, k):
-            self.__exch(k, k // 2)
+            self._exch(k, k // 2)
             k = k // 2
 
-    def __sink(self, k):
-        while 2 * k <= self.size():
+    def _sink(self, k):
+        while 2 * k <= len(self):
             j = 2 * k
-            if j < self.size() and self.__compare(j, j + 1):
+            if j < len(self) and self.__compare(j, j + 1):
                 j += 1
             if not self.__compare(k, j):
                 break
-            self.__exch(k, j)
+            self._exch(k, j)
             k = j
 
 
-# order (key,value) pairs by value
+# order (index,value) pairs by value
 class IndexHeap(Heap):
-    def __init__(self, keys: list = None, values: list = None, min=True, compare=None):
-        if values or keys:
-            if not (values and keys):
-                raise ValueError('illegal arguments')
-            self.keys = dict(zip(keys, values))
-        else:
-            self.keys = {}
-        super().__init__(keys, min, compare)
+    def __init__(self, min=True, comparator=None):
+        self.map = {}
+
+        def dec(i, j):
+            if comparator:
+                comp = comparator(self.map[i], self.map[j]) > 0
+            else:
+                comp = self.map[i] > self.map[j]
+            return comp if self.min else not comp
+
+        super().__init__(min, dec)
+
+    def heapify(self, di: dict):
+        self.map = dict(di)
+        super().heapify(list(di.keys()))
 
     def pop(self):
         m = super().pop()
-        key = self.keys[m]
-        del self.keys[m]
-        return m, key
+        value = self.map[m]
+        del self.map[m]
+        return m, value
 
-    def top(self):
-        m = super().top()
-        return m, self.keys[m]
+    def peek(self):
+        m = super().peek()
+        return m, self.map[m]
 
-    def insert(self, key, value):
-        if key in self:
+    def push(self, index, value=None):
+        if index in self:
             raise ValueError("index is already in the priority queue")
-        super().insert(key)
-        self.keys[key] = value
+        if value is None:
+            raise ValueError("lack value parameter")
+        self.map[index] = value
+        super().push(index)
 
-    def changeKey(self, key, value):
-        self.validate(key)
-        self.keys[key] = value
-        self.__swim(self.qp[key])
-        self.__sink(self.qp[key])
+    def __contains__(self, item):
+        return item in self.map
 
-    def valueOf(self, key):
-        self.validate(key)
-        return self.keys[key]
+    def __setitem__(self, key, value):
+        self._validate(key)
+        self.map[key] = value
+        self._swim(self.qp[key])
+        self._sink(self.qp[key])
 
-    def delete(self, key):
-        super().delete(key)
-        del self.keys[key]
+    def __getitem__(self, item):
+        self._validate(item)
+        return self.map[item]
 
-    def __compare(self, i, j):
-        if self.compare:
-            comp = self.compare(self.keys[self.pq[i]], self.keys[self.pq[j]]) > 0
-        else:
-            comp = self.keys[self.pq[i]] > self.keys[self.pq[j]]
-        return comp if self.min else not comp
+    def __delitem__(self, key):
+        del super()[key]
+        del self.map[key]
+
+
+if __name__ == "__main__":
+    a = list(range(10))
+    h = Heap(min=False)
+    h.heapify(a)
+    h.push(5)
+    h.pop()
+    h.peek()
+    res = []
+    while len(h) > 0:
+        res.append(h.pop())
+
+    a = list(range(10))
+    di = dict(zip(a, a[::-1]))
+    h = IndexHeap(min=False)
+    h.heapify(di)
+    h[0] = 5.5
+    h.push(10, 2)
+    h.pop()
+    h.peek()
+    res = []
+    while len(h) > 0:
+        res.append(h.pop()[1])
