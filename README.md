@@ -12,5 +12,5 @@ documentation to be completed
 ## Installation  
 method 1: pip install --user libheap  
 method 2: download this project, and run "python setup.py install"  
-method 3: install anaconda, and run "conda install -c a870070392 libheap"
+method 3: install anaconda, and run "conda install -c a870070392 libheap"  
 only support python3
