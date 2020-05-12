@@ -7,7 +7,7 @@ class Heap:
     def heapify(self, keys):
         self.pq = [0] + keys
         self.qp = dict(zip(keys, range(1, len(self.pq))))
-        k = (len(self.pq) - 1) // 2
+        k = len(keys) // 2
         while k >= 1:
             self._sink(k)
             k -= 1
@@ -128,7 +128,7 @@ class IndexHeap(Heap):
 
 
 if __name__ == "__main__":
-    a = list(range(10))
+    a = [4, 6, 2, 7, 3, 7, 2, 4, 5]
     h = Heap()
     h.heapify(a)
     h.push(5)
