@@ -22,7 +22,7 @@ class UF:
             self.parent[rootQ] = rootP
         else:
             self.parent[rootP] = rootQ
-            self.rank[rootP] += 1
+            self.rank[rootQ] += 1
         self.count -= 1
 
     def connected_component(self):
