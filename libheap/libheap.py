@@ -1,8 +1,6 @@
 class Heap:
-    def __init__(self, min=True, comparator=None):
+    def __init__(self, comparator=lambda x, y: x > y):
         self.comparator = comparator
-        # denote whether it's a min heap
-        self.min = min
         self.pq = [0]
         self.qp = {}
 
@@ -58,11 +56,7 @@ class Heap:
         return item in self.qp
 
     def __compare(self, i, j):
-        if self.comparator:
-            comp = self.comparator(self.pq[i], self.pq[j]) > 0
-        else:
-            comp = self.pq[i] > self.pq[j]
-        return comp if self.min else not comp
+        return self.comparator(self.pq[i], self.pq[j])
 
     def _exch(self, i, j):
         swap = self.pq[i]
@@ -89,17 +83,9 @@ class Heap:
 
 # order (index,value) pairs by value
 class IndexHeap(Heap):
-    def __init__(self, min=True, comparator=None):
+    def __init__(self, comparator=lambda x, y: x > y):
         self.map = {}
-
-        def dec(i, j):
-            if comparator:
-                comp = comparator(self.map[i], self.map[j]) > 0
-            else:
-                comp = self.map[i] > self.map[j]
-            return comp if self.min else not comp
-
-        super().__init__(min, dec)
+        super().__init__(lambda i, j: comparator(self.map[i], self.map[j]))
 
     def heapify(self, di: dict):
         self.map = dict(di)
@@ -143,7 +129,7 @@ class IndexHeap(Heap):
 
 if __name__ == "__main__":
     a = list(range(10))
-    h = Heap(min=False)
+    h = Heap()
     h.heapify(a)
     h.push(5)
     h.pop()
@@ -154,7 +140,7 @@ if __name__ == "__main__":
 
     a = list(range(10))
     di = dict(zip(a, a[::-1]))
-    h = IndexHeap(min=False)
+    h = IndexHeap()
     h.heapify(di)
     h[0] = 5.5
     h.push(10, 2)
