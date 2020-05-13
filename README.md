@@ -3,12 +3,14 @@ here is an implementation of a general heap library, including trivial heap and 
 
 Indexheap is a significant heap structure which stores and sorts (index,key) pairs according to their key, it is essential in efficient implementation of Dijkstra's algorithm, Prim's algorithm and other variants.  
 
-Meanwhile, it also includes implementation of [Disjoint set](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)(totally irrevalent, just attaching because I am bored).  
+Meanwhile, it also includes implementation of [Disjoint set](https://en.wikipedia.org/wiki/Disjoint-set_data_structure).  
+
 ## Acknowledgement
 this library is coded by reference to [algs4](https://algs4.cs.princeton.edu/code/). Much appreciation!
 
+## Documentation  
+to be completed    
 
-documentation to be completed    
 ## Installation  
 method 1: pip install --user libheap  
 method 2: download this project, and run "python setup.py install"  
